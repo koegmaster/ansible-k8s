@@ -1,5 +1,5 @@
 ---
-# tasks file for simon/k8s/roles/k8s_essentials
+# tasks file for simon/k8s/roles/k8s_fundamentals
 - name: Disable swap
   ansible.builtin.include_tasks: disable_swap.yml
 

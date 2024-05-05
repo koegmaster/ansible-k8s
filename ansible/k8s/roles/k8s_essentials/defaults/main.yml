@@ -1,4 +1,0 @@
----
-# defaults file for simon/k8s/roles/k8s_essentials
-k8s_essentials_k8s_version: "1.28"
-k8s_essentials_k8s_tools_version: "1.28.1-1.1"
