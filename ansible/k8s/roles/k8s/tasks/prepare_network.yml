@@ -1,0 +1,16 @@
+---
+- name: Roll out network k8s.conf files
+  notify:
+    - Reload sysctl
+    - Load network modules
+  ansible.builtin.template:
+    src: "{{ file.src }}"
+    dest: "{{ file.dest }}"
+    mode: "0750"
+  loop:
+    - src: etc/modules-load.d/k8s.conf
+      dest: /etc/modules-load.d/k8s.conf
+    - src: etc/sysctl.d/k8s.conf
+      dest: /etc/sysctl.d/k8s.conf
+  loop_control:
+    loop_var: file

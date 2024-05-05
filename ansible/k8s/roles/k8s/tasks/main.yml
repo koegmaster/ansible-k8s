@@ -1,0 +1,21 @@
+---
+# tasks file for k8s
+- name: Install containerd
+  ansible.builtin.include_tasks:
+    file: install_containerd.yml
+
+- name: Increase disk space
+  ansible.builtin.include_tasks:
+    file: increase_disk.yml
+
+- name: Prepare network
+  ansible.builtin.include_tasks:
+    file: prepare_network.yml
+
+- name: Disable swap
+  ansible.builtin.include_tasks:
+    file: disable_swap.yml
+
+- name: Install k8s deps
+  ansible.builtin.include_tasks:
+    file: install_k8s_deps.yml

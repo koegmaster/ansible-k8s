@@ -1,0 +1,5 @@
+# Exclude python venv
+.venv
+
+# Exlude devbox dir
+.devbox

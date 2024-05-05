@@ -1,0 +1,47 @@
+---
+- name: Add docker repo
+  block:
+    - name: Download gpg key for docker
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Add apt source docker
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu jammy stable"
+        state: present
+
+- name: Install containerd
+  ansible.builtin.apt:
+    name: containerd.io
+    state: present
+    update_cache: true
+
+- name: Enable and start containerd service
+  ansible.builtin.systemd:
+    name: containerd
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Check if containerd config.toml containes SystemdCgroup = true
+  register: systemd_cgroup
+  changed_when: false
+  ignore_errors: true
+  ansible.builtin.shell:
+    cmd: set -o pipefail && cat /etc/containerd/config.toml | grep SystemdCgroup | grep true
+    executable: /bin/bash
+
+- name: Create containerd config.toml
+  when: systemd_cgroup.rc != 0
+  changed_when: false
+  ansible.builtin.shell:
+    cmd: containerd config default > /etc/containerd/config.toml
+
+- name: Set sytemd cgroups
+  ansible.builtin.replace:
+    path: /etc/containerd/config.toml
+    regexp: "            SystemdCgroup = false"
+    replace: "            SystemdCgroup = true"
+  notify: Restart containerd service

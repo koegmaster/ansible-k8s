@@ -1,0 +1,11 @@
+---
+- name: Disable SWAP since kubernetes can't work with swap enabled
+  ansible.builtin.shell:
+    cmd: swapoff -a && touch /root/.swapoff
+    creates: /root/.swapoff
+
+- name: Delete swap from fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'

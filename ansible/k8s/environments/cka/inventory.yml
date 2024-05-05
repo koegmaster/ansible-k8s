@@ -1,0 +1,9 @@
+---
+managers:
+  hosts:
+    k8scp:
+      ansible_host: 192.168.100.146
+workers:
+  hosts:
+    k8swn01:
+      ansible_host: 192.168.100.125

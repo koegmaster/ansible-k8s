@@ -1,0 +1,9 @@
+---
+- name: Setup k8s
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Run role
+      ansible.builtin.include_role:
+        name: k8s_essentials

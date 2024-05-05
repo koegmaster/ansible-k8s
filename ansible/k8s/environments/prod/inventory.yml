@@ -1,0 +1,21 @@
+---
+managers:
+  hosts:
+    manager01:
+      ansible_host: 192.168.100.101
+      var_disk: "sdb"
+      var_uuid: "2d56ed6b-4b59-4a52-8c1f-c2e5c879885e"
+workers:
+  hosts:
+    worker01:
+      ansible_host: 192.168.100.111
+      var_disk: "sdb"
+      var_uuid: "785f12b9-395f-4bd3-8e35-1e01d787cc4e"
+    worker02:
+      ansible_host: 192.168.100.112
+      var_disk: "sdb"
+      var_uuid: "9e42ee25-4f0a-48a0-b8e6-842356c07890"
+    worker03:
+      ansible_host: 192.168.100.113
+      var_disk: "sdb"
+      var_uuid: "4253702a-07dc-47ac-863b-8430ef487baf"

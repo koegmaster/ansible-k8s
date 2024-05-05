@@ -1,0 +1,48 @@
+---
+# handlers file for k8s
+- name: Enable and start containerd service
+  ansible.builtin.systemd:
+    name: containerd
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Restart containerd service
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+
+- name: Install runc
+  ansible.builtin.command:
+    cmd: "install -m 755 /tmp/runc.amd64 /usr/local/sbin/runc"
+  changed_when: false
+
+- name: Set kubernetes apt config
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | \
+      sudo tee /etc/apt/sources.list.d/kubernetes.list
+  changed_when: false
+
+- name: Start and enable kubelet
+  ansible.builtin.systemd:
+    name: kubelet
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Delete swap from fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: Reload sysctl
+  ansible.builtin.command:
+    cmd: sysctl --system
+  changed_when: false
+
+- name: Load network modules
+  ansible.builtin.command:
+    cmd: modprobe br_netfilter ; modprobe overlay
+  changed_when: false

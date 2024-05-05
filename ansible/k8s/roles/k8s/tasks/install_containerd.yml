@@ -1,0 +1,66 @@
+---
+- name: Download dependencies
+  ansible.builtin.get_url:
+    url: https://github.com/containerd/containerd/releases/download/v{{
+      k8s_containerd_version }}/containerd-{{ k8s_containerd_version }}-linux-{{ k8s_arch }}.tar.gz
+    dest: /tmp/containerd-{{ k8s_containerd_version }}-linux-{{ k8s_arch }}.tar.gz
+    mode: "0750"
+
+- name: Extract containerd
+  ansible.builtin.unarchive:
+    src: /tmp/containerd-{{ k8s_containerd_version }}-linux-{{ k8s_arch }}.tar.gz
+    dest: /usr/local
+    remote_src: true
+
+- name: Create dirs
+  ansible.builtin.file:
+    path: "{{ file.path }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  loop:
+    - path: /opt/cni/bin
+    - path: /usr/local/lib/systemd/system
+    - path: /etc/containerd
+  loop_control:
+    loop_var: file
+
+- name: Download containerd service
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
+    dest: /usr/local/lib/systemd/system/containerd.service
+    mode: "0644"
+  notify: Enable and start containerd service
+
+- name: Create containerd config.toml
+  ansible.builtin.shell:
+    cmd: containerd config default > /etc/containerd/config.toml
+    creates: /etc/containerd/config.toml
+
+- name: Set sytemd cgroups
+  ansible.builtin.replace:
+    path: /etc/containerd/config.toml
+    regexp: "            SystemdCgroup = false"
+    replace: "            SystemdCgroup = true"
+  notify: Restart containerd service
+
+- name: Download runc
+  ansible.builtin.get_url:
+    url: https://github.com/opencontainers/runc/releases/download/v{{ k8s_runc_version }}/runc.amd64
+    dest: /tmp/runc.amd64
+    mode: "0750"
+  notify: Install runc
+
+- name: Download cni plugins
+  ansible.builtin.get_url:
+    url: https://github.com/containernetworking/plugins/releases/download/v{{
+      k8s_cni_plugins_version }}/cni-plugins-linux-amd64-v{{ k8s_cni_plugins_version }}.tgz
+    dest: /tmp/cni-plugins-linux-amd64-v{{ k8s_cni_plugins_version }}.tgz
+    mode: "0750"
+
+- name: Extract cni plugins
+  ansible.builtin.unarchive:
+    src: /tmp/cni-plugins-linux-amd64-v{{ k8s_cni_plugins_version }}.tgz
+    dest: /opt/cni/bin
+    remote_src: true

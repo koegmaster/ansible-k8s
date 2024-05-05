@@ -1,0 +1,14 @@
+---
+- name: Install deps for k8s
+  ansible.builtin.package:
+    name:
+      - apt-transport-https
+      - vim
+      - wget
+      - git
+      - software-properties-common
+      - lsb-release
+      - ca-certificates
+      - curl
+      - gpg
+    state: present

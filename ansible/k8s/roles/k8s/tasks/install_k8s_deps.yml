@@ -1,0 +1,36 @@
+---
+- name: Install deps for k8s
+  ansible.builtin.package:
+    name:
+      - apt-transport-https
+      - vim
+      - wget
+      - git
+      - software-properties-common
+      - lsb-release
+      - ca-certificates
+      - curl
+      - gpg
+    state: present
+
+- name: Download gpg key
+  ansible.builtin.shell: |
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v{{ k8s_k8s_version }}/deb/Release.key \
+    | sudo gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  changed_when: false
+
+- name: Add k8s repo
+  ansible.builtin.shell: |
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ k8s_k8s_version }}/deb/ /' \
+    | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  changed_when: false
+
+- name: Install k8s pkgs
+  ansible.builtin.apt:
+    name:
+      - kubelet={{ k8s_k8s_tools_version }}
+      - kubectl={{ k8s_k8s_tools_version }}
+      - kubeadm={{ k8s_k8s_tools_version }}
+    state: present
+    update_cache: true
+  notify: Start and enable kubelet

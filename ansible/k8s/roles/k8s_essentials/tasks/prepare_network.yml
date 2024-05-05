@@ -1,0 +1,25 @@
+---
+- name: Load network modules
+  community.general.modprobe:
+    name: "{{ module.name }}"
+    persistent: present
+  loop:
+    - name: br_netfilter
+    - name: overlay
+  loop_control:
+    loop_var: module
+
+- name: Set sysctl config for k8s
+  ansible.posix.sysctl:
+    name: "{{ sysctl.name }}"
+    value: "{{ sysctl.value }}"
+    reload: true
+  loop:
+    - name: net.bridge.bridge-nf-call-iptables
+      value: "1"
+    - name: net.bridge.bridge-nf-call-ip6tables
+      value: "1"
+    - name: net.ipv4.ip_forward
+      value: "1"
+  loop_control:
+    loop_var: sysctl

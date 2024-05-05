@@ -1,0 +1,29 @@
+---
+- name: Add gpg key for k8s
+  block:
+    - name: Download gpg key for k8s
+      ansible.builtin.get_url:
+        url: https://pkgs.k8s.io/core:/stable:/v{{ k8s_essentials_k8s_version }}/deb/Release.key
+        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+        mode: "0644"
+
+    - name: Add apt source for k8s
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v{{ k8s_essentials_k8s_version }}/deb/ /"
+        state: present
+
+- name: Install k8s pkgs
+  ansible.builtin.apt:
+    name:
+      - kubelet={{ k8s_essentials_k8s_tools_version }}
+      - kubectl={{ k8s_essentials_k8s_tools_version }}
+      - kubeadm={{ k8s_essentials_k8s_tools_version }}
+    state: present
+    update_cache: true
+
+- name: Start and enable kubelet
+  ansible.builtin.systemd:
+    name: kubelet
+    enabled: true
+    state: started
+    daemon_reload: true

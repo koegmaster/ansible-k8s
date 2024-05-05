@@ -1,0 +1,8 @@
+---
+- name: Increase lv to max
+  community.general.lvol:
+    vg: ubuntu-vg
+    lv: ubuntu-lv
+    size: 100%FREE
+    resizefs: true
+    force: true
